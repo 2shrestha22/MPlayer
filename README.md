@@ -5,7 +5,7 @@ This is a sipmle project on Android that uses Tensorflow to detecet facial expre
 You need to setup your music list manually.
 
 Create these folders and put desired musics in it:
-Musics/Happy/
-Musics/Cool/
-Musics/Joy/
-Musics/Amazed/
+  Musics/Happy/
+  Musics/Cool/
+  Musics/Joy/
+  Musics/Amazed/
