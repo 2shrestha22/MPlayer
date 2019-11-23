@@ -194,7 +194,7 @@ public class FragmentNowPlaying extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Toast.makeText(getContext(),"onResume called", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(),"onResume called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onResume: called");
         //calling broadcast receiver
         songInfoReceiver();
