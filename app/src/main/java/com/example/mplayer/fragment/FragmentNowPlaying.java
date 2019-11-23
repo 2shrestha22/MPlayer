@@ -194,6 +194,7 @@ public class FragmentNowPlaying extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        //toast disabled
         //Toast.makeText(getContext(),"onResume called", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onResume: called");
         //calling broadcast receiver
