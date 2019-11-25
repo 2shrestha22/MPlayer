@@ -205,7 +205,8 @@ public class FragmentCamera extends Fragment {
             detectButton.setEnabled(true);
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            faceImageView.setImageBitmap(imageBitmap);
+            faceImageView.setImage(imageBitmap);
+//            faceImageView.setImageBitmap(imageBitmap);
             //detectEmotion();
         }
     }
