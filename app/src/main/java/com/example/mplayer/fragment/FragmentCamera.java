@@ -24,14 +24,12 @@ import com.example.mplayer.model.SongList;
 import com.example.mplayer.tflite.Classifier;
 import com.example.mplayer.tflite.TensorFlowImageClassifier;
 import com.example.mplayer.utils.FaceCropper;
-import com.example.mplayer.utils.ImageUtils;
 import com.example.mplayer.utils.SquareImageView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 
 import static android.app.Activity.RESULT_OK;
 
@@ -215,16 +213,16 @@ public class FragmentCamera extends Fragment {
             detectButton.setEnabled(true);
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            //faceImageView.setImageBitmap(imageBitmap);
+            faceImageView.setImageBitmap(imageBitmap);
 
-            Bitmap imageBitmap1 = mFaceCropper.getCroppedImage(imageBitmap);
-            if (imageBitmap1.getConfig() != Bitmap.Config.ARGB_8888) {
-                Log.d(TAG, "onActivityResult: Bitmap converting");
-                imageBitmap1 = imageBitmap1.copy(Bitmap.Config.ARGB_8888,true);
-            }
-            if (imageBitmap != imageBitmap1)
-                imageBitmap.recycle();
-            faceImageView.setImageBitmap(imageBitmap1);
+//            Bitmap imageBitmap1 = mFaceCropper.getCroppedImage(imageBitmap);
+//            if (imageBitmap1.getConfig() != Bitmap.Config.ARGB_8888) {
+//                Log.d(TAG, "onActivityResult: Bitmap converting");
+//                imageBitmap1 = imageBitmap1.copy(Bitmap.Config.ARGB_8888,true);
+//            }
+//            if (imageBitmap != imageBitmap1)
+//                imageBitmap.recycle();
+//            faceImageView.setImageBitmap(imageBitmap1);
             detectEmotion();
 
         }
