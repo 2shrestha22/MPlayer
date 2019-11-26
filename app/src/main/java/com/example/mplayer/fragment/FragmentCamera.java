@@ -32,7 +32,6 @@ import com.example.mplayer.utils.FaceCropper;
 import com.example.mplayer.utils.SquareImageView;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -259,12 +258,12 @@ public class FragmentCamera extends Fragment {
         return File.createTempFile(part, ext, tempDir);
     }
 
-    private void deleteTemporaryFile() {
-        File tempDir=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/.MPlayer/");
-        if(!tempDir.exists())
-        {
-            tempDir.delete();
-        }
+    private void deleteTemporaryFile(File tempDir) {
+        if (tempDir.isDirectory())
+            for (File child : tempDir.listFiles())
+                deleteTemporaryFile(child);
+
+        tempDir.delete();
     }
     public void grabImage(ImageView imageView)
     {
@@ -331,7 +330,8 @@ public class FragmentCamera extends Fragment {
         super.onDestroyView();
         classifier.close();
         //delete image files while captured
-        deleteTemporaryFile();
+        File tempDir=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/.MPlayer/");
+        deleteTemporaryFile(tempDir);
     }
 
 }
