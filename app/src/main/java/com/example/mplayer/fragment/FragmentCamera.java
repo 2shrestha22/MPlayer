@@ -330,8 +330,7 @@ public class FragmentCamera extends Fragment {
         super.onDestroyView();
         classifier.close();
         //delete image files while captured
-        File tempDir=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/.MPlayer/");
-        deleteTemporaryFile(tempDir);
+        deleteTemporaryFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/.MPlayer/"));
     }
 
 }
