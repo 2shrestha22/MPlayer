@@ -1,17 +1,22 @@
 package com.example.mplayer.fragment;
 
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +31,8 @@ import com.example.mplayer.tflite.TensorFlowImageClassifier;
 import com.example.mplayer.utils.FaceCropper;
 import com.example.mplayer.utils.SquareImageView;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -98,7 +105,9 @@ public class FragmentCamera extends Fragment {
             @Override
             public void onClick(View v) {
                 //start camera here
-                dispatchTakePictureIntent();
+//                dispatchTakePictureIntent();
+                clearStatus();
+                myPictureDispatcher();
             }
         });
 
@@ -137,7 +146,7 @@ public class FragmentCamera extends Fragment {
         //mFaceCropper.setDebug(true);
         mFaceCropper.setMaxFaces(1);
 //        mFaceCropper.setEyeDistanceFactorMargin((float) 2 / 10);
-//        mFaceCropper.setFaceMarginPx(100);
+        mFaceCropper.setFaceMarginPx(100);
     }
 
     private void setList() {
@@ -185,6 +194,10 @@ public class FragmentCamera extends Fragment {
         //get RGB bitmap from faceImageView
         Bitmap image = ((BitmapDrawable)faceImageView.getDrawable()).getBitmap();
 
+        if (image.getConfig() != Bitmap.Config.ARGB_8888) {
+                Log.d(TAG, "onActivityResult: Bitmap converting");
+                image = image.copy(Bitmap.Config.ARGB_8888,true);
+            }
         //crop image to center
         //Bitmap croppedImage = ImageUtils.cropCenter(image);
 
@@ -206,32 +219,119 @@ public class FragmentCamera extends Fragment {
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            detectButton.setEnabled(true);
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            //faceImageView.setImageBitmap(imageBitmap);
 
-            Bitmap imageBitmap1 = mFaceCropper.getCroppedImage(imageBitmap);
-            if (imageBitmap1.getConfig() != Bitmap.Config.ARGB_8888) {
-                Log.d(TAG, "onActivityResult: Bitmap converting");
-                imageBitmap1 = imageBitmap1.copy(Bitmap.Config.ARGB_8888,true);
-            }
-            if (imageBitmap != imageBitmap1)
-                imageBitmap.recycle();
-            faceImageView.setImageBitmap(imageBitmap1);
-            detectEmotion();
+    //getting full size bitmap image instead of thumbnail only
+    //https://stackoverflow.com/questions/6448856/android-camera-intent-how-to-get-full-sized-photo
 
+    private Uri mImageUri;
+    private File photo;
+
+    private void myPictureDispatcher(){
+
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try
+        {
+            // place where to store camera taken picture
+            photo = createTemporaryFile("picture", ".jpg");
+            photo.delete();
+        }
+        catch(Exception e)
+        {
+            Log.d(TAG, "Can't create file to take picture!");
+            Toast.makeText(getContext(), "Please check SD card! Image shot is impossible!", Toast.LENGTH_SHORT);
+        }
+        if (photo == null)
+            Log.d(TAG, "myPictureDispatcher: photo is null @third");
+        mImageUri = Uri.fromFile(photo);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
+        //start camera intent
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+
+    }
+
+    private File createTemporaryFile(String part, String ext) throws Exception
+    {
+        File tempDir=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/.MPlayer/");
+        if(!tempDir.exists())
+        {
+            tempDir.mkdirs();
+        }
+        return File.createTempFile(part, ext, tempDir);
+    }
+
+    private void deleteTemporaryFile() {
+        File tempDir=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+"/.MPlayer/");
+        if(!tempDir.exists())
+        {
+            tempDir.delete();
         }
     }
+    public void grabImage(ImageView imageView)
+    {
+        getContext().getContentResolver().notifyChange(mImageUri, null);
+        ContentResolver cr = getContext().getContentResolver();
+        Bitmap bitmap;
+        try
+        {
+            bitmap = android.provider.MediaStore.Images.Media.getBitmap(cr, mImageUri);
+            Bitmap imageBitmap1 = mFaceCropper.getCroppedImage(bitmap);
+            if (bitmap!=imageBitmap1)
+                bitmap.recycle();
+            imageView.setImageBitmap(imageBitmap1);
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(getContext(), "Failed to load", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Failed to load", e);
+        }
+    }
+
+    //called after camera intent finished
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent)
+    {
+        //MenuShootImage is user defined menu option to shoot image
+        if(requestCode==REQUEST_IMAGE_CAPTURE && resultCode==RESULT_OK)
+        {
+            //ImageView imageView;
+            //... some code to inflate/create/find appropriate ImageView to place grabbed image
+            grabImage(faceImageView);
+            detectButton.setEnabled(true);
+
+            detectEmotion();
+        }
+        super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+//
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+//            detectButton.setEnabled(true);
+//            Bundle extras = data.getExtras();
+//            Bitmap imageBitmap = (Bitmap) extras.get("data");
+//            //faceImageView.setImageBitmap(imageBitmap);
+//
+//            Bitmap imageBitmap1 = mFaceCropper.getCroppedImage(imageBitmap);
+//            if (imageBitmap1.getConfig() != Bitmap.Config.ARGB_8888) {
+//                Log.d(TAG, "onActivityResult: Bitmap converting");
+//                imageBitmap1 = imageBitmap1.copy(Bitmap.Config.ARGB_8888,true);
+//            }
+//            if (imageBitmap != imageBitmap1)
+//                imageBitmap.recycle();
+//            faceImageView.setImageBitmap(imageBitmap1);
+//            detectEmotion();
+//
+//        }
+//    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         classifier.close();
+        //delete image files while captured
+        deleteTemporaryFile();
     }
 
 }
