@@ -18,7 +18,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -31,8 +30,6 @@ import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import static com.example.mplayer.MainActivity.getContextOfApplication;
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener,
@@ -319,7 +316,7 @@ public class MusicService extends Service implements
             //song seek
             int seekTo = intent.getIntExtra("seekTo", 0);
 
-            Toast.makeText(getApplicationContext(),signal, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(),signal, Toast.LENGTH_SHORT).show();
             Log.d(TAG, "BroadCast Received");
 
             switch (signal) {
