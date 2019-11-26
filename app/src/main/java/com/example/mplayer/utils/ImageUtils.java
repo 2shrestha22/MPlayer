@@ -12,6 +12,9 @@ public class ImageUtils {
 
     public static Bitmap cropCenter(Bitmap srcBmp) {
         Bitmap dstBmp;
+        if (srcBmp.getHeight() == srcBmp.getWidth())
+            return srcBmp;
+
         if (srcBmp.getWidth() >= srcBmp.getHeight()){
 
             dstBmp = Bitmap.createBitmap(

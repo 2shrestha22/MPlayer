@@ -23,6 +23,7 @@ import com.example.mplayer.model.Song;
 import com.example.mplayer.model.SongList;
 import com.example.mplayer.tflite.Classifier;
 import com.example.mplayer.tflite.TensorFlowImageClassifier;
+import com.example.mplayer.utils.FaceCropper;
 import com.example.mplayer.utils.ImageUtils;
 import com.example.mplayer.utils.SquareImageView;
 
@@ -31,12 +32,15 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+
 import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class FragmentCamera extends Fragment {
+
+    FaceCropper mFaceCropper = new FaceCropper();
 
     private Executor executor = Executors.newSingleThreadExecutor();
     private static final String MODEL_PATH = "AWFERmodel.tflite";
@@ -90,6 +94,7 @@ public class FragmentCamera extends Fragment {
         clearButton = view.findViewById(R.id.reset);
         setListButton = view.findViewById(R.id.setList);
 
+
         //OnClick listeners
         photoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +135,11 @@ public class FragmentCamera extends Fragment {
         //load TensorFlow model
         loadModel();
 
+        mFaceCropper.setFaceMinSize(20);
+        //mFaceCropper.setDebug(true);
+        mFaceCropper.setMaxFaces(1);
+//        mFaceCropper.setEyeDistanceFactorMargin((float) 2 / 10);
+//        mFaceCropper.setFaceMarginPx(100);
     }
 
     private void setList() {
@@ -205,9 +215,18 @@ public class FragmentCamera extends Fragment {
             detectButton.setEnabled(true);
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            faceImageView.setImage(imageBitmap);
-//            faceImageView.setImageBitmap(imageBitmap);
-            //detectEmotion();
+            //faceImageView.setImageBitmap(imageBitmap);
+
+            Bitmap imageBitmap1 = mFaceCropper.getCroppedImage(imageBitmap);
+            if (imageBitmap1.getConfig() != Bitmap.Config.ARGB_8888) {
+                Log.d(TAG, "onActivityResult: Bitmap converting");
+                imageBitmap1 = imageBitmap1.copy(Bitmap.Config.ARGB_8888,true);
+            }
+            if (imageBitmap != imageBitmap1)
+                imageBitmap.recycle();
+            faceImageView.setImageBitmap(imageBitmap1);
+            detectEmotion();
+
         }
     }
 
