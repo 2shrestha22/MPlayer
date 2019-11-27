@@ -242,12 +242,6 @@ public class FaceCropper {
 
     public Bitmap getCroppedImage(Bitmap bitmap) {
         CropResult result = cropFace(bitmap, mDebug);
-//        Bitmap croppedBitmap = Bitmap.createBitmap(bitmap,
-//                result.getInit().x,
-//                result.getInit().y,
-//                result.getEnd().x - result.getInit().x,
-//                result.getEnd().y - result.getInit().y);
-
         Bitmap croppedBitmap = Bitmap.createBitmap(result.getBitmap(),
                 result.getInit().x,
                 result.getInit().y,

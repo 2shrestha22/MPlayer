@@ -241,6 +241,8 @@ public class FragmentCamera extends Fragment {
         }
         if (photo == null)
             Log.d(TAG, "myPictureDispatcher: photo is null @third");
+//        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+//        StrictMode.setVmPolicy(builder.build());
         mImageUri = Uri.fromFile(photo);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
         //start camera intent

@@ -1,7 +1,6 @@
 package com.example.mplayer.tflite;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -133,7 +132,8 @@ public class TensorFlowImageClassifier implements Classifier {
                     //byteBuffer.putFloat((((((val >> 16) & 0xFF) + ((val >> 8) & 0xFF) + (val & 0xFF))/3.0f)-IMAGE_MEAN)/IMAGE_STD);
 
                     //converts rgb to grayscale and normalizes and appends on byteBuffer
-                    byteBuffer.putFloat(((((val >> 16) & 0xFF) + ((val >> 8) & 0xFF) + (val & 0xFF))/3.0f)/255.0f);
+                    byteBuffer.putFloat(((((val >> 16) & 0xFF) * 0.3f + ((val >> 8) & 0xFF) * 0.59f + (val & 0xFF) * 0.11f))/255.0f);
+//                    byteBuffer.putFloat(((((val >> 16) & 0xFF) * 0.3f + ((val >> 8) & 0xFF) * 0.59f + (val & 0xFF) * 0.11f)/3.0f)/255.0f);
 
                 }
 
